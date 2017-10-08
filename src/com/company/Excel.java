@@ -37,47 +37,19 @@ public class Excel {
         return instance;
     }
 
+
+    // --------Groups--------
+
+    public Map<String, Set<Row>> getGroupsMap() {
+        return groupsMap;
+    }
+
     public int getAmountGroups() {
         return groupsMap.size();
     }
 
-    public Set<String> getCoursesName() {
-        return coursesMap.keySet();
-    }
-
     public Set<String> getGroupsName() {
         return groupsMap.keySet();
-    }
-
-    public int getAmountCourses() {
-        return coursesMap.size();
-    }
-
-    public int getAmountEmployee() {
-        return employeesMap.size();
-    }
-
-    public Map<String, Integer> getAmountEmployeesInGroups() {
-        Map<String, Integer> map = new HashMap<>();
-        groupsMap.forEach((groupName, rows) -> {
-            map.put(groupName, (int) rows.stream().map(row -> row.getId()).distinct().count());
-        });
-        return map;
-    }
-
-    public Map<String, Integer> getAmountSuccessEmployeesInGroups() {
-        Map<String, Integer> map = new HashMap<>();
-        Set<Integer> set = new HashSet<>();
-        groupsMap.forEach((groupName, rows) -> {
-            set.clear();
-            rows.stream()
-                    .collect(groupingBy(Row::getId, toSet()))
-                    .forEach((Integer k, Set<Row> v) -> {
-                        if (v.stream().allMatch(row -> row.isPass() == true)) set.add(k);
-                    });
-            map.put(groupName, set.size());
-        });
-        return map;
     }
 
     public Map<String, Float> getResultsOfGroups() {
@@ -88,6 +60,37 @@ public class Excel {
             map.put(groupName, pass / all);
         });
         return map;
+    }
+
+    public Map<String, Map<String, Float>> getResultsOfGroupsByCourses() {
+        Map<String, Map<String, Float>> mapGroupsOfMapsCourses = new HashMap<>();
+        groupsMap.forEach((groupName, rows) -> {
+            Map<String, Float> mapResultsOfCourses = new HashMap<>();
+            rows.stream()
+                    .collect(groupingBy(Row::getCourseName, toSet()))
+                    .forEach((courseName, _rows) -> {
+                        float all = (float) _rows.size();
+                        float pass = (float) _rows.stream().filter(row -> row.isPass() == true).count();
+                        mapResultsOfCourses.put(courseName, pass / all);
+                    });
+            mapGroupsOfMapsCourses.put(groupName, mapResultsOfCourses);
+        });
+        return mapGroupsOfMapsCourses;
+    }
+
+
+    // -------Courses---------
+
+    public Map<String, Set<Row>> getCoursesMap() {
+        return coursesMap;
+    }
+
+    public Set<String> getCoursesName() {
+        return coursesMap.keySet();
+    }
+
+    public int getAmountCourses() {
+        return coursesMap.size();
     }
 
     public Map<String, Float> getResultsOfCourses() {
@@ -107,7 +110,7 @@ public class Excel {
             rows.stream()
                     .collect(groupingBy(Row::getGroupName, toSet()))
                     .forEach((groupName, _rows) -> {
-                        float all = (float) _rows.stream().count();
+                        float all = (float) _rows.size();
                         float pass = (float) _rows.stream().filter(row -> row.isPass() == true).count();
                         mapResultsOfGroups.put(groupName, pass / all);
                     });
@@ -116,33 +119,41 @@ public class Excel {
         return mapCoursesOfMapsGroups;
     }
 
-    public Map<String, Map<String, Float>> getResultsOfGroupsByCourses() {
-        Map<String, Map<String, Float>> mapGroupsOfMapsCourses = new HashMap<>();
-        groupsMap.forEach((groupName, rows) -> {
-            Map<String, Float> mapResultsOfCourses = new HashMap<>();
-            rows.stream()
-                    .collect(groupingBy(Row::getCourseName, toSet()))
-                    .forEach((courseName, _rows) -> {
-                        float all = (float) _rows.size();
-                        float pass = (float) _rows.stream().filter(row -> row.isPass() == true).count();
-                        mapResultsOfCourses.put(courseName, pass / all);
-                    });
-            mapGroupsOfMapsCourses.put(groupName, mapResultsOfCourses);
-        });
-        return mapGroupsOfMapsCourses;
-    }
+
+    // -----------Employees--------
 
     public Map<Integer, Set<Row>> getEmployeesMap() {
         return employeesMap;
     }
 
-    public Map<String, Set<Row>> getGroupsMap() {
-        return groupsMap;
+    public int getAmountEmployee() {
+        return employeesMap.size();
     }
 
-    public Map<String, Set<Row>> getCoursesMap() {
-        return coursesMap;
+    public Map<String, Integer> getAmountEmployeesInGroups() {
+        Map<String, Integer> map = new HashMap<>();
+        groupsMap.forEach((groupName, rows) -> {
+            map.put(groupName, (int) rows.stream().map(Row::getId).distinct().count());
+        });
+        return map;
     }
+
+    public Map<String, Integer> getAmountSuccessEmployeesInGroups() {
+        Map<String, Integer> map = new HashMap<>();
+        groupsMap.forEach((groupName, rows) -> {
+            Set<Integer> set = new HashSet<>();
+            rows.stream()
+                    .collect(groupingBy(Row::getId, toSet()))
+                    .forEach((employeeID, _rows) -> {
+                        if (_rows.stream().allMatch(row -> row.isPass() == true)) set.add(employeeID);
+                    });
+            map.put(groupName, set.size());
+        });
+        return map;
+    }
+
+
+    // -----------Other------------
 
     private XSSFSheet getSheet(File file) {
         try (FileInputStream fis = new FileInputStream(file)) {

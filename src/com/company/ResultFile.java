@@ -5,106 +5,106 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 
 public class ResultFile {
 
-//    private static ResultFile instance;
-//    private Excel excel;
-//    private XSSFWorkbook wbOut = new XSSFWorkbook();
-//    private XSSFSheet sheetOut;
-//    private String outFileName;
-//
-//    private ResultFile(Excel excel) {
-//        outFileName = "./Result.xlsx";
-//        this.excel = excel;
-//    }
-//
-//    public static ResultFile newInstance(Excel excel) {
-//        if (instance == null) instance = new ResultFile(excel);
-//        return instance;
-//    }
-//
-//    private void averageCourses() {
-//        sheetOut = wbOut.createSheet("averageCourses");
-//        excel.getAverageCourses().forEach((k, v) -> {
-//            XSSFRow row = sheetOut.createRow(sheetOut.getLastRowNum() + 1);
-//            row.createCell(0).setCellValue(k);
-//            row.createCell(1).setCellType(CellType.NUMERIC);
-//            row.getCell(1).setCellValue(v);
-//        });
-//    }
-//
-//    private void resultsOfCourseRC() {
-//        sheetOut = wbOut.createSheet("resultsOfCourseRC");
-//        List<CourseHelper> courseHelpers = new ArrayList<>();
-//        Set<String> courseNameSet = new LinkedHashSet<>();
-//        sheetOut.createRow(1).createCell(0);
-//        excel.getResultsOfCourseRC().forEach((rcName, mapCourses) -> {
-//            sheetOut.getRow(1).createCell(sheetOut.getRow(1).getLastCellNum()).setCellValue(rcName);
-//            mapCourses.forEach((k, v) -> courseNameSet.add(k));
-//        });
-//
-//        courseNameSet.forEach(name -> {
-//            XSSFRow row = sheetOut.createRow(sheetOut.getLastRowNum() + 1);
-//            row.createCell(0).setCellValue(name);
-//            excel.getResultsOfCourseRC().forEach((rcName, mapCourses)->{
-//                mapCourses.forEach((courseName, courseRes)->{
-//                    if(name.equals(courseName)){
-//                        row.createCell(row.getLastCellNum()).setCellValue(courseRes);
-//                    }
-//                });
-//            });
-//        });
-//
-//
-////        courseHelpers.stream()
-////                .forEach(courseHelper -> {
-////                    XSSFRow row = sheetOut.createRow(sheetOut.getLastRowNum() + 1);
-////                    row.createCell(0).setCellValue(courseHelper.getRc());
-////                    row.createCell(1).setCellValue(courseHelper.getCourseName());
-////                    row.createCell(2).setCellType(CellType.NUMERIC);
-////                    row.getCell(2).setCellValue(courseHelper.getRes());
-////                });
-//    }
-//
-//    private void averageRC() {
-//        sheetOut = wbOut.createSheet("averageRC");
-//        excel.getAverageRC().forEach((k, v) -> {
-//            XSSFRow row = sheetOut.createRow(sheetOut.getLastRowNum() + 1);
-//            row.createCell(0).setCellValue(k);
-//            row.createCell(1).setCellType(CellType.NUMERIC);
-//            row.getCell(1).setCellValue(v);
-//        });
-//    }
-//
-//    private void amountSuccessfulEmployee() {
-//        sheetOut = wbOut.createSheet("amountSuccessfulEmployee");
-//        excel.getRcSet().forEach(rc -> {
-//            XSSFRow row = sheetOut.createRow(sheetOut.getLastRowNum() + 1);
-//            row.createCell(0).setCellValue(rc.getName());
-//            row.createCell(1).setCellType(CellType.NUMERIC);
-//            row.getCell(1).setCellValue(rc.getAmountEmployee());
-//            row.createCell(2).setCellType(CellType.NUMERIC);
-//            row.getCell(2).setCellValue(rc.getAmountSuccessfulEmployee());
-//            row.createCell(3).setCellType(CellType.NUMERIC);
-//            row.getCell(3).setCellValue(((float) rc.getAmountSuccessfulEmployee()) / ((float) rc.getAmountEmployee()));
-//        });
-//    }
-//
-//    public void writeFile() {
-//        averageRC();
-//        averageCourses();
-//        resultsOfCourseRC();
-//        amountSuccessfulEmployee();
-//        try (FileOutputStream fos = new FileOutputStream(outFileName)) {
-//            wbOut.write(fos);
-//            wbOut.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    private static ResultFile instance;
+    private Excel excel;
+    private XSSFWorkbook wbOut = new XSSFWorkbook();
+    private XSSFSheet sheetOut;
+    private final static String OUT_FILE_NAME = "./Result.xlsx";
+
+    private ResultFile(Excel excel) {
+        (new File(OUT_FILE_NAME)).delete();
+        this.excel = excel;
+    }
+
+    public static ResultFile newInstance(Excel excel) {
+        if (instance == null) instance = new ResultFile(excel);
+        return instance;
+    }
+
+    private void resultsOfCourses() {
+        sheetOut = wbOut.createSheet("resultsOfCourses");
+        excel.getResultsOfCourses().forEach((courseName, result) -> {
+            XSSFRow row = sheetOut.createRow(sheetOut.getLastRowNum() + 1);
+            row.createCell(0).setCellValue(courseName);
+            row.createCell(1).setCellType(CellType.NUMERIC);
+            row.getCell(1).setCellValue(result);
+        });
+    }
+
+    private void resultsOfGroups() {
+        sheetOut = wbOut.createSheet("resultsOfGroups");
+        excel.getResultsOfGroups().forEach((groupName, result) -> {
+            XSSFRow row = sheetOut.createRow(sheetOut.getLastRowNum() + 1);
+            row.createCell(0).setCellValue(groupName);
+            row.createCell(1).setCellType(CellType.NUMERIC);
+            row.getCell(1).setCellValue(result);
+        });
+    }
+
+    private void resultsOfGroupsByCourses() {
+        sheetOut = wbOut.createSheet("resultsOfGroupsByCourses");
+        excel.getResultsOfGroupsByCourses().forEach((groupName, coursesMap) -> {
+            coursesMap.forEach((courseName, result) -> {
+                XSSFRow row = sheetOut.createRow(sheetOut.getLastRowNum() + 1);
+                row.createCell(0).setCellValue(groupName);
+                row.createCell(1).setCellValue(courseName);
+                row.createCell(2).setCellType(CellType.NUMERIC);
+                row.getCell(2).setCellValue(result);
+            });
+        });
+    }
+
+    private void resultsOfCoursesByGroups() {
+        sheetOut = wbOut.createSheet("resultsOfCoursesByGroups");
+        excel.getResultsOfCoursesByGroups().forEach((courseName, groupsMap) -> {
+            groupsMap.forEach((groupName, result) -> {
+                XSSFRow row = sheetOut.createRow(sheetOut.getLastRowNum() + 1);
+                row.createCell(0).setCellValue(courseName);
+                row.createCell(1).setCellValue(groupName);
+                row.createCell(2).setCellType(CellType.NUMERIC);
+                row.getCell(2).setCellValue(result);
+            });
+        });
+    }
+
+
+    private void amountSuccessEmployeesInGroups() {
+        sheetOut = wbOut.createSheet("amountSuccessEmployeesInGroups");
+        excel.getAmountEmployeesInGroups().forEach((groupName, amountAll) -> {
+            excel.getAmountSuccessEmployeesInGroups().forEach((_groupName, amountSuccess) -> {
+                if (groupName.equals(_groupName)) {
+                    XSSFRow row = sheetOut.createRow(sheetOut.getLastRowNum() + 1);
+                    row.createCell(0).setCellValue(groupName);
+                    row.createCell(1).setCellType(CellType.NUMERIC);
+                    row.getCell(1).setCellValue(amountAll);
+                    row.createCell(2).setCellType(CellType.NUMERIC);
+                    row.getCell(2).setCellValue(amountSuccess);
+                    row.createCell(3).setCellType(CellType.NUMERIC);
+                    row.getCell(3).setCellValue((float) amountSuccess / (float) amountAll);
+                }
+            });
+        });
+    }
+
+    public void writeFile() {
+        resultsOfCourses();
+        resultsOfGroups();
+        amountSuccessEmployeesInGroups();
+        resultsOfGroupsByCourses();
+        resultsOfCoursesByGroups();
+        try (FileOutputStream fos = new FileOutputStream(OUT_FILE_NAME)) {
+            wbOut.write(fos);
+            wbOut.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
