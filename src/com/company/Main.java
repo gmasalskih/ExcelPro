@@ -5,15 +5,12 @@ import java.io.IOException;
 
 public class Main {
 
-
-
     public static void main(String[] args) throws IOException {
+
         (new File("./Result.xlsx")).delete();
         Excel excel = Excel.newInstance();
-        excel.getResultsOfCourseRC();
-
-        ResultFile resultFile = ResultFile.newInstance(excel);
-        resultFile.writeFile();
-
+        System.out.println(excel.getResultsOfCoursesByGroups());
+        System.out.println(excel.getResultsOfGroupsByCourses());
+        System.out.println(excel.getAmountCourses());
     }
 }
